@@ -9,22 +9,10 @@ import UIKit
 import MapKit
 import CoreLocation
 
-
-
 class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     
-    
+    // MARK: - Properties
     @IBOutlet weak var cityNameTextField: UITextField!
-    
-    var weatherData : WeatherData?
-    var model =  WeatherModel()
-    var locationManager = CLLocationManager()
-    
-    var degree = "\u{00B0}"
-    var numbrr = 180
-    var cityName = ""
-    var currentCityName = ""
-    
     @IBOutlet weak var stackView: UIStackView!
     @IBOutlet weak var currentLocationLabel: UILabel!
     @IBOutlet weak var cityLabel: UILabel!
@@ -32,25 +20,28 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var conditionLabel: UILabel!
     @IBOutlet weak var currantLocationArrow: UIButton!
     @IBOutlet weak var minMaxLabel: UILabel!
-    
     @IBOutlet weak var searchButton: UIButton!
+    
+    var weatherData : WeatherData?
+    var model =  WeatherModel()
+    var locationManager = CLLocationManager()
+    var degree = "\u{00B0}"
+    var cityName = ""
+    var currentCityName = ""
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setbackgroundImage()
         cityNameTextField.setBorder(textField: cityNameTextField)
         currantLocationArrow.setImage(UIImage(systemName: "location.fill"), for: .normal)
-        //  determineMyCurrentLocation()
-        
-        print(currentCityName)
-        // data(cityName: currentCityName)
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        determineMyCurrentLocation()
     }
     
-    func determineMyCurrentLocation() {
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        getCurrentLocation()
+    }
+    
+    func getCurrentLocation() {
         locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -60,15 +51,9 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
             locationManager.startUpdatingLocation()
-            currantLocationArrow.setImage(UIImage(systemName: "location.fill"), for: .normal)
         }
-        data(cityName: "Canton")
     }
     
-    
-    func convertToCelsius(fahrenheit: Int) -> Int {
-        return Int(5.0 / 9.0 * (Double(fahrenheit) - 32.0))
-    }
     func setbackgroundImage(){
         let backgroundImage = UIImageView(frame: UIScreen.main.bounds)
         backgroundImage.image = UIImage(named: "Clear.png")
@@ -78,17 +63,17 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location: CLLocation = manager.location else { return }
-        fetchCityAndCountry(from: location) { city, country, error in
-            guard let city = city, let country = country, error == nil else { return }
-            print(city + ", " + country)
+        getCurretLocationCity(from: location) { city, error in
+            guard let city = city, error == nil else { return }
+            print(city)
             self.currentCityName = city
+            self.getWeatherData(cityName: self.currentCityName)
         }
     }
     
-    func fetchCityAndCountry(from location: CLLocation, completion: @escaping (_ city: String?, _ country:  String?, _ error: Error?) -> ()) {
+    func getCurretLocationCity(from location: CLLocation, completion: @escaping (_ city: String?, _ error: Error?) -> ()) {
         CLGeocoder().reverseGeocodeLocation(location) { placemarks, error in
             completion(placemarks?.first?.locality,
-                       placemarks?.first?.country,
                        error)
         }
     }
@@ -101,18 +86,16 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
         else{
             currentLocationLabel.isHidden = true
             currantLocationArrow.setImage(UIImage(systemName: "location"), for: .normal)
-            data(cityName: cityName)}
+            getWeatherData(cityName: cityName)}
     }
     
     @IBAction func currentLocationClicked(_ sender: Any) {
         currentLocationLabel.isHidden = false
         currantLocationArrow.setImage(UIImage(systemName: "location.fill"), for: .normal)
-        data(cityName: currentCityName)
+        getWeatherData(cityName: currentCityName)
     }
     
-    
-    
-    func data(cityName: String){
+    func getWeatherData(cityName: String){
         var CityNameWithNoSpace = cityName
         if cityName.contains(" "){
             CityNameWithNoSpace = cityName.replacingOccurrences(of: " ", with: "%20")

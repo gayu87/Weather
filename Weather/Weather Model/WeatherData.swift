@@ -18,7 +18,7 @@ struct WeatherData: Decodable {
 // MARK: - Main
 struct Main: Decodable {
     let temp, tempMin, tempMax: Double
-
+    
     enum CodingKeys: String, CodingKey {
         case temp
         case tempMin = "temp_min"
@@ -29,6 +29,6 @@ struct Main: Decodable {
 // MARK: - Weather
 struct Weather: Codable {
     let main, description, icon: String
-
+    
 }
 

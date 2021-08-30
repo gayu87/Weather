@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 enum APIError: String, Error {
     case badUrl = "Please search with different city name"
@@ -14,22 +15,6 @@ enum APIError: String, Error {
 }
 
 class WeatherModel{
-    func getMockData(){
-        let decoder = JSONDecoder()
-        let bundel = Bundle(for: type(of: self))
-        if let url = bundel.url(forResource: "Weather", withExtension: "json"){
-            do{
-                let json = try Data(contentsOf: url)
-                let data = try decoder.decode(WeatherData.self, from: json)
-                print(data)
-                
-            } catch{
-                print("Unable to process json")
-            }
-        }
-    }
-    
-    
     func getData(for cityName: String, APIKey: String , completionHandler: @escaping (Result<WeatherData, APIError>) -> Void)  {
         
         let baseUrl =  "https://api.openweathermap.org/data/2.5/weather?q=\(cityName)&appid=\(APIKey)&units=imperial"
@@ -56,7 +41,6 @@ class WeatherModel{
             do {
                 let decoder = JSONDecoder()
                 let weatherData = try decoder.decode(WeatherData.self, from: data)
-                print("Data in API function:" ,weatherData)
                 completionHandler(.success(weatherData))
             } catch {
                 completionHandler(.failure(.invalidJosn))
@@ -64,8 +48,5 @@ class WeatherModel{
         }
         task.resume()
     }
-    
-    
-    
-    
+  
 }

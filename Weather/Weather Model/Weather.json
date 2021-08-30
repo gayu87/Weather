@@ -1,0 +1,15 @@
+{
+   "weather":[
+      {
+         "main":"Clear",
+         "description":"clear sky",
+         "icon":"01n"
+      }
+   ],
+   "main":{
+      "temp":72.57,
+      "temp_min":69.94,
+      "temp_max":73.76
+   },  
+   "name":"Detroit"
+}
